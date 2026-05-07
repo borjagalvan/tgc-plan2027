@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>TGC 2027 · Sub-6h Plan</title>
+<style>
+  :root {
+    --bg: #0f0e0d;
+    --surf: #181513;
+    --surf2: #221e1a;
+    --surf3: #2a2420;
+    --line: #3a312a;
+    --text: #f2e8de;
+    --muted: #c4b09a;
+    --faint: #7a6e65;
+    --orange: #e8711e;
+    --orange2: #c45610;
+    --gold: #c98a14;
+    --blue: #4d8ab0;
+    --green: #4a9444;
+    --red: #c05840;
+    --base: #2e5e80;
+    --build: #8a3e10;
+    --spec: #7a5208;
+    --peak: #1f4e1d;
+    --taper: #2f6a2c;
+    --streng: #1e2e1a;
+    --series: #2e1a10;
+    --short: #152030;
+    --long: #2a2010;
+    --rest: #1a1816;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif; min-height: 100vh; }
+
+  /* ── HEADER ── */
+  .app-header {
+    background: var(--surf);
+    border-bottom: 3px solid var(--orange);
+    padding: 14px 20px 12px;
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .app-header .logo { display: flex; flex-direction: column; }
+  .app-header .logo-eye { font-size: 9px; font-weight: 700; letter-spacing: 2px; color: var(--orange); text-transform: uppercase; }
+  .app-header .logo-title { font-size: 20px; font-weight: 800; color: var(--text); line-height: 1.1; }
+  .app-header .logo-title span { color: var(--orange); }
+  .header-meta { text-align: right; }
+  .header-meta .date-target { font-size: 10px; color: var(--muted); }
+  .header-meta .time-target { font-size: 18px; font-weight: 800; color: var(--orange); }
+
+  /* ── NAV TABS ── */
+  .nav-tabs {
+    display: flex; overflow-x: auto; gap: 0;
+    background: var(--surf2);
+    border-bottom: 1px solid var(--line);
+    scrollbar-width: none;
+  }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+  .nav-tab {
+    flex-shrink: 0; padding: 10px 16px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+    color: var(--faint); cursor: pointer; border: none; background: none;
+    border-bottom: 3px solid transparent; transition: all .2s;
+    text-transform: uppercase; white-space: nowrap;
+  }
+  .nav-tab.active { color: var(--text); border-bottom-color: var(--orange); }
+  .nav-tab:hover { color: var(--muted); }
+
+  /* ── VIEWS ── */
+  .view { display: none; padding: 16px; }
+  .view.active { display: block; }
+
+  /* ── DASHBOARD ── */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .stat-card {
+    background: var(--surf2); border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px; display: flex; flex-direction: column; gap: 4px;
+  }
+  .stat-label { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; color: var(--faint); text-transform: uppercase; }
+  .stat-value { font-size: 26px; font-weight: 800; color: var(--text); line-height: 1; }
+  .stat-value.orange { color: var(--orange); }
+  .stat-sub { font-size: 10px; color: var(--muted); }
+
+  .section-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+    color: var(--orange); text-transform: uppercase; margin: 20px 0 10px;
+  }
+
+  /* ── PHASE CARDS ── */
+  .phase-card {
+    border-radius: 12px; overflow: hidden; margin-bottom: 12px;
+    border: 1px solid var(--line); cursor: pointer;
+  }
+  .phase-header {
+    padding: 14px 16px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .phase-header .ph-left { display: flex; flex-direction: column; gap: 3px; }
+  .phase-header .ph-name { font-size: 15px; font-weight: 800; color: white; }
+  .phase-header .ph-sub { font-size: 10px; color: rgba(255,255,255,0.7); }
+  .phase-header .ph-badge {
+    background: rgba(0,0,0,0.3); border-radius: 20px; padding: 4px 10px;
+    font-size: 10px; font-weight: 700; color: white;
+  }
+  .phase-body { background: var(--surf2); padding: 12px 16px; display: none; }
+  .phase-body.open { display: block; }
+  .phase-note { font-size: 12px; color: var(--muted); padding: 4px 0; border-bottom: 1px solid var(--line); }
+  .phase-note:last-child { border-bottom: none; }
+  .phase-note::before { content: '→ '; color: var(--orange); font-weight: 700; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-container { margin-bottom: 16px; }
+  .progress-bar-bg { background: var(--surf3); border-radius: 20px; height: 8px; overflow: hidden; margin-top: 6px; }
+  .progress-bar-fill { height: 100%; border-radius: 20px; background: linear-gradient(90deg, var(--orange2), var(--orange)); transition: width .5s; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+  /* ── WEEK LIST ── */
+  .week-card {
+    background: var(--surf2); border: 1px solid var(--line); border-radius: 10px;
+    margin-bottom: 8px; overflow: hidden; cursor: pointer;
+  }
+  .week-header {
+    display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+  }
+  .week-num {
+    background: var(--surf3); border-radius: 8px; min-width: 42px; height: 42px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .week-num .wn { font-size: 16px; font-weight: 800; color: var(--text); line-height: 1; }
+  .week-num .wl { font-size: 8px; color: var(--faint); }
+  .week-info { flex: 1; }
+  .week-dates { font-size: 10px; color: var(--faint); }
+  .week-title { font-size: 13px; font-weight: 700; color: var(--text); }
+  .week-km { font-size: 12px; color: var(--orange); font-weight: 700; }
+  .week-dplus { font-size: 11px; color: var(--muted); }
+  .week-body { display: none; border-top: 1px solid var(--line); }
+  .week-body.open { display: block; }
+  .session-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 9px 14px; border-bottom: 1px solid var(--line);
+  }
+  .session-row:last-child { border-bottom: none; }
+  .session-day {
+    font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--faint); min-width: 28px; padding-top: 1px;
+  }
+  .session-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 3px;
+  }
+  .session-text { font-size: 12px; color: var(--muted); flex: 1; line-height: 1.4; }
+  .session-check {
+    width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--line);
+    flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all .15s; margin-top: 0;
+  }
+  .session-check.done { background: var(--green); border-color: var(--green); }
+  .session-check.done::after { content: '✓'; font-size: 13px; color: white; font-weight: 700; }
+
+  /* session type colors */
+  .dot-streng { background: #4a9444; }
+  .dot-series { background: var(--orange); }
+  .dot-short  { background: var(--blue); }
+  .dot-long   { background: var(--gold); }
+  .dot-rest   { background: var(--faint); }
+  .dot-race   { background: var(--red); }
+
+  /* Phase filter pills */
+  .filter-pills { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; margin-bottom: 14px; }
+  .filter-pills::-webkit-scrollbar { display: none; }
+  .pill {
+    flex-shrink: 0; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700;
+    cursor: pointer; border: 1px solid var(--line); background: var(--surf2); color: var(--muted);
+    transition: all .15s;
+  }
+  .pill.active { color: white; border-color: transparent; }
+  .pill-all.active { background: var(--orange); }
+  .pill-base.active { background: var(--base); }
+  .pill-build.active { background: var(--build); }
+  .pill-spec.active { background: var(--spec); }
+  .pill-peak.active { background: var(--peak); }
+  .pill-taper.active { background: var(--taper); }
+
+  /* ── STRENGTH ── */
+  .strength-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 20px; }
+  .strength-table th { background: var(--surf3); color: var(--muted); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--line); }
+  .strength-table td { padding: 9px 10px; border-bottom: 1px solid var(--line); color: var(--muted); vertical-align: top; }
+  .strength-table tr:nth-child(even) td { background: var(--surf2); }
+  .strength-table .ex-name { color: var(--text); font-weight: 600; }
+  .strength-table .phase-val { color: var(--orange); font-weight: 700; }
+
+  /* ── CHECKPOINT ── */
+  .cp-list { display: flex; flex-direction: column; gap: 0; }
+  .cp-item {
+    display: flex; gap: 14px; align-items: flex-start; padding: 14px 0;
+    border-bottom: 1px solid var(--line); position: relative;
+  }
+  .cp-item:last-child { border-bottom: none; }
+  .cp-dot-col { display: flex; flex-direction: column; align-items: center; padding-top: 3px; }
+  .cp-circle {
+    width: 14px; height: 14px; border-radius: 50%; background: var(--orange);
+    border: 2px solid var(--orange2); flex-shrink: 0;
+  }
+  .cp-line { width: 2px; background: var(--line); flex: 1; margin-top: 4px; min-height: 20px; }
+  .cp-item:last-child .cp-line { display: none; }
+  .cp-content { flex: 1; }
+  .cp-km { font-size: 10px; color: var(--faint); }
+  .cp-name { font-size: 15px; font-weight: 700; color: var(--text); }
+  .cp-time { font-size: 20px; font-weight: 800; color: var(--orange); }
+  .cp-tactic { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+
+  /* ── CHART ── */
+  .chart-wrap { background: var(--surf2); border-radius: 12px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--line); }
+  .chart-title { font-size: 11px; font-weight: 700; color: var(--muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
+  canvas { width: 100% !important; }
+
+  /* ── LEGEND ── */
+  .legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--muted); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* ── MISC ── */
+  .tag {
+    display: inline-block; padding: 2px 8px; border-radius: 20px;
+    font-size: 9px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+  }
+  .tag-base { background: rgba(46,94,128,.3); color: #7ab4d4; }
+  .tag-build { background: rgba(138,62,16,.3); color: #e08050; }
+  .tag-spec { background: rgba(122,82,8,.3); color: #d4a040; }
+  .tag-peak { background: rgba(31,78,29,.3); color: #70c068; }
+  .tag-taper { background: rgba(47,106,44,.3); color: #80c078; }
+
+  .info-box {
+    background: var(--surf2); border: 1px solid var(--line); border-left: 3px solid var(--orange);
+    border-radius: 0 10px 10px 0; padding: 12px 14px; margin-bottom: 12px;
+  }
+  .info-box p { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+  @media (min-width: 600px) {
+    .stats-grid { grid-template-columns: repeat(4,1fr); }
+    .view { max-width: 700px; margin: 0 auto; }
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="logo">
+    <span class="logo-eye">Transgrancanaria · Marathon 2027</span>
+    <span class="logo-title">PLAN <span>SUB-6H</span></span>
+  </div>
+  <div class="header-meta">
+    <div class="date-target">26 feb 2027</div>
+    <div class="time-target">5:55–6:00</div>
+  </div>
+</header>
+
+<nav class="nav-tabs">
+  <button class="nav-tab active" onclick="showView('dashboard')">Dashboard</button>
+  <button class="nav-tab" onclick="showView('plan')">Plan</button>
+  <button class="nav-tab" onclick="showView('checkpoints')">Checkpoints</button>
+  <button class="nav-tab" onclick="showView('strength')">Fuerza</button>
+  <button class="nav-tab" onclick="showView('chart')">Progresión</button>
+</nav>
+
+<!-- ══════════════ DASHBOARD ══════════════ -->
+<div id="view-dashboard" class="view active">
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-label">Objetivo</span>
+      <span class="stat-value orange">Sub-6h</span>
+      <span class="stat-sub">5h55 – 6h00</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Semanas</span>
+      <span class="stat-value">42</span>
+      <span class="stat-sub">may 2026 – feb 2027</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Sesiones</span>
+      <span class="stat-value">5-6</span>
+      <span class="stat-sub">por semana</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Pico km</span>
+      <span class="stat-value orange">80</span>
+      <span class="stat-sub">km / semana</span>
+    </div>
+  </div>
+
+  <div class="progress-container">
+    <div class="section-title">Progreso del plan</div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div class="progress-label">
+      <span id="progress-text">Sem 1 de 42</span>
+      <span id="progress-pct">0%</span>
+    </div>
+  </div>
+
+  <div class="section-title">Fases del plan</div>
+  <div id="phase-cards"></div>
+
+  <div class="section-title">Sesiones de hoy</div>
+  <div class="info-box"><p>Selecciona tu semana actual en la pestaña <b>Plan</b> para ver las sesiones del día y marcarlas como completadas.</p></div>
+</div>
+
+<!-- ══════════════ PLAN ══════════════ -->
+<div id="view-plan" class="view">
+  <div class="filter-pills">
+    <button class="pill pill-all active" onclick="filterPhase('all',this)">Todas</button>
+    <button class="pill pill-base" onclick="filterPhase('base',this)">Base</button>
+    <button class="pill pill-build" onclick="filterPhase('build',this)">Construcción</button>
+    <button class="pill pill-spec" onclick="filterPhase('spec',this)">Específico</button>
+    <button class="pill pill-peak" onclick="filterPhase('peak',this)">Pico</button>
+    <button class="pill pill-taper" onclick="filterPhase('taper',this)">Taper</button>
+  </div>
+  <div id="week-list"></div>
+</div>
+
+<!-- ══════════════ CHECKPOINTS ══════════════ -->
+<div id="view-checkpoints" class="view">
+  <div class="info-box">
+    <p>Tiempos objetivo para la carrera del <b>26 de febrero de 2027</b>. Salida desde Tejeda, meta en Maspalomas.</p>
+  </div>
+  <div class="cp-list">
+    <div class="cp-item">
+      <div class="cp-dot-col"><div class="cp-circle"></div><div class="cp-line"></div></div>
+      <div class="cp-content">
+        <div class="cp-km">km 0</div>
+        <div class="cp-name">Salida · Tejeda</div>
+        <div class="cp-time">0:00</div>
+        <div class="cp-tactic">Primeros 20 min controlados. Ritmo firme pero limpio desde el inicio.</div>
+      </div>
+    </div>
+    <div class="cp-item">
+      <div class="cp-dot-col"><div class="cp-circle"></div><div class="cp-line"></div></div>
+      <div class="cp-content">
+        <div class="cp-km">km 11–12</div>
+        <div class="cp-name">CP1 · Garañón</div>
+        <div class="cp-time">1:35–1:40</div>
+        <div class="cp-tactic">Subida fuerte con bastones. 5-10 min más rápido que sub-7. Aquí empieza la diferencia.</div>
+      </div>
+    </div>
+    <div class="cp-item">
+      <div class="cp-dot-col"><div class="cp-circle"></div><div class="cp-line"></div></div>
+      <div class="cp-content">
+        <div class="cp-km">km 19–20</div>
+        <div class="cp-name">CP2 · Degollada</div>
+        <div class="cp-time">2:15–2:20</div>
+        <div class="cp-tactic">Correr las bajadas con confianza y cadencia alta. El trabajo excéntrico se nota aquí.</div>
+      </div>
+    </div>
+    <div class="cp-item">
+      <div class="cp-dot-col"><div class="cp-circle"></div><div class="cp-line"></div></div>
+      <div class="cp-content">
+        <div class="cp-km">km 31–32</div>
+        <div class="cp-name">CP3 · Ayagaures</div>
+        <div class="cp-time">3:55–4:05</div>
+        <div class="cp-tactic">Comer, beber y gestionar el calor. Aquí se define si vas a sub-6 o no.</div>
+      </div>
+    </div>
+    <div class="cp-item">
+      <div class="cp-dot-col"><div class="cp-circle"></div><div class="cp-line"></div></div>
+      <div class="cp-content">
+        <div class="cp-km">km 46–47</div>
+        <div class="cp-name">Meta · Maspalomas</div>
+        <div class="cp-time">5:55–6:00</div>
+        <div class="cp-tactic">Últimos 14 km: calor y esfuerzo mental. Cadencia constante y gestión de ritmo.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ STRENGTH ══════════════ -->
+<div id="view-strength" class="view">
+  <div class="info-box">
+    <p>2 sesiones/semana en Base y Construcción. Bajar a 1-2 en Específico y Pico. En Taper solo movilidad.</p>
+  </div>
+  <table class="strength-table">
+    <thead>
+      <tr><th>Ejercicio</th><th>Base</th><th>Construcción</th><th>Específ./Pico</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="ex-name">Sentadilla búlgara</td><td class="phase-val">4x10</td><td class="phase-val">4x8-10</td><td>3x8</td></tr>
+      <tr><td class="ex-name">Step-down excéntrico</td><td class="phase-val">3x10</td><td class="phase-val">4x10-12</td><td>3x8-10</td></tr>
+      <tr><td class="ex-name">Hip thrust</td><td class="phase-val">4x12</td><td class="phase-val">4x10</td><td>3x8</td></tr>
+      <tr><td class="ex-name">Peso muerto rumano</td><td class="phase-val">3x8-10</td><td class="phase-val">3x8</td><td>2-3x6</td></tr>
+      <tr><td class="ex-name">Nordic curl</td><td class="phase-val">3x6-8</td><td class="phase-val">3x6</td><td>2-3x5-6</td></tr>
+      <tr><td class="ex-name">Gemelo excéntrico</td><td class="phase-val">3x15</td><td class="phase-val">3x15 carg.</td><td>3x12-15</td></tr>
+      <tr><td class="ex-name">Drop jumps / Box jump</td><td class="phase-val">3x6</td><td class="phase-val">3x8</td><td>2x6</td></tr>
+      <tr><td class="ex-name">Core / Plancha / Pallof</td><td class="phase-val">3 bloq.</td><td class="phase-val">2-3 bloq.</td><td>1-2 bloq.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-title">Claves para sub-6h</div>
+  <div style="display:flex;flex-direction:column;gap:8px;">
+    <div class="info-box"><p><b style="color:var(--text)">Nutrición:</b> 80-90 g/h de hidratos. El ritmo más alto aumenta el consumo.</p></div>
+    <div class="info-box"><p><b style="color:var(--text)">Calor:</b> 2-3 tiradas/mes al mediodía. Los últimos 14 km a ritmo sub-6 con calor son muy duros.</p></div>
+    <div class="info-box"><p><b style="color:var(--text)">Bajadas:</b> Con más km a mayor ritmo, el excéntrico es todavía más crítico.</p></div>
+    <div class="info-box"><p><b style="color:var(--text)">6º día:</b> Rodaje suave Z1-Z2 o técnica de bajada. No es un día duro.</p></div>
+    <div class="info-box"><p><b style="color:var(--text)">Tests:</b> Sem 8: test subida 45 min. Sem 18: tirada control 30 km.</p></div>
+  </div>
+</div>
+
+<!-- ══════════════ CHART ══════════════ -->
+<div id="view-chart" class="view">
+  <div class="chart-wrap">
+    <div class="chart-title">Progresión km/semana · 42 semanas</div>
+    <canvas id="kmChart" height="200"></canvas>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--base)"></div>Base</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--build)"></div>Construcción</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--spec)"></div>Específico</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--peak)"></div>Pico</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--taper)"></div>Taper</div>
+    </div>
+  </div>
+  <div class="chart-wrap">
+    <div class="chart-title">Desnivel acumulado D+ por semana</div>
+    <canvas id="dChart" height="180"></canvas>
+  </div>
+</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+const WEEKS = [
+ {n:1,ph:'base',km:42,d:800,key:'Reentrada 6 días',days:{lun:{t:'streng',s:'Fuerza A · Base'},mar:{t:'series',s:"6x2' cuesta"},mie:{t:'short',s:'10 km Z2'},jue:{t:'streng',s:'Fuerza B'},vie:{t:'short',s:'10 km Z2'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'20 km montaña'}}},
+ {n:2,ph:'base',km:46,d:900,key:'Continuidad',days:{lun:{t:'streng',s:'Fuerza A'},mar:{t:'series',s:"7x2' cuesta"},mie:{t:'short',s:'11 km Z2'},jue:{t:'streng',s:'Fuerza B'},vie:{t:'short',s:'11 km Z2'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'24 km bastones'}}},
+ {n:3,ph:'base',km:50,d:1100,key:'1ª semana sólida',days:{lun:{t:'streng',s:'Fuerza A'},mar:{t:'series',s:"8x2' cuesta"},mie:{t:'short',s:'12 km +200D'},jue:{t:'streng',s:'Fuerza B'},vie:{t:'short',s:'12 km variado'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'24 km 1000D+'}}},
+ {n:4,ph:'base',km:36,d:600,key:'Descarga',days:{lun:{t:'rest',s:'Descanso'},mar:{t:'series',s:"4x2' suave"},mie:{t:'short',s:'9 km suave'},jue:{t:'streng',s:'Core suave'},vie:{t:'short',s:'9 km suave'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'16 km'}}},
+ {n:5,ph:'base',km:52,d:1200,key:'Subir carga',days:{lun:{t:'streng',s:'Fuerza A'},mar:{t:'series',s:"8x3' cuesta"},mie:{t:'short',s:'13 km med.'},jue:{t:'streng',s:'Fuerza B'},vie:{t:'short',s:'13 km med.'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'26 km'}}},
+ {n:6,ph:'base',km:56,d:1300,key:'Solidez',days:{lun:{t:'streng',s:'Fuerza A'},mar:{t:'series',s:"9x3' cuesta"},mie:{t:'short',s:'13 km variado'},jue:{t:'streng',s:'Fuerza B'},vie:{t:'short',s:'13 km +300D'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'27 km 1100D+'}}},
+ {n:7,ph:'base',km:60,d:1500,key:'Pico base',days:{lun:{t:'streng',s:'Fuerza A'},mar:{t:'series',s:"10x3' cuesta"},mie:{t:'short',s:'14 km ritmo'},jue:{t:'streng',s:'Fuerza B'},vie:{t:'short',s:'14 km bajadas'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'29 km'}}},
+ {n:8,ph:'base',km:42,d:800,key:'Descarga + test',days:{lun:{t:'rest',s:'Descanso'},mar:{t:'series',s:"5x2' suave"},mie:{t:'short',s:'10 km suave'},jue:{t:'streng',s:'Core'},vie:{t:'short',s:'10 km suave'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'20 km bastones'}}},
+ {n:9,ph:'build',km:56,d:1600,key:'Umbral subida',days:{lun:{t:'streng',s:'Fuerza A'},mar:{t:'series',s:"4x8' cuesta"},mie:{t:'short',s:'14 km ritmo'},jue:{t:'streng',s:'Fuerza B'},vie:{t:'short',s:'14 km técnico'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'26 km 1400D+'}}},
+ {n:10,ph:'build',km:58,d:1700,key:'Economía subida',days:{lun:{t:'streng',s:'Fuerza A'},mar:{t:'series',s:"4x8' bastones"},mie:{t:'short',s:'15 km bajadas'},jue:{t:'streng',s:'Fuerza B'},vie:{t:'short',s:'14 km ritmo'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'27 km'}}},
+ {n:11,ph:'build',km:60,d:1850,key:'Control bajando',days:{lun:{t:'streng',s:'Fuerza A'},mar:{t:'series',s:"5x8' cuesta"},mie:{t:'short',s:'15 km +400D'},jue:{t:'streng',s:'Fuerza B'},vie:{t:'short',s:'14 km bajadas'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'28 km 1500D+'}}},
+ {n:12,ph:'build',km:44,d:1000,key:'Descarga',days:{lun:{t:'rest',s:'Descanso'},mar:{t:'series',s:"4x3' suave"},mie:{t:'short',s:'11 km suave'},jue:{t:'streng',s:'Core suave'},vie:{t:'short',s:'11 km suave'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'20 km'}}},
+ {n:13,ph:'build',km:62,d:2000,key:'Especificidad',days:{lun:{t:'streng',s:'F. explosiva'},mar:{t:'series',s:"4x10' cuesta"},mie:{t:'short',s:'15 km técnico'},jue:{t:'streng',s:'Fuerza B'},vie:{t:'short',s:'15 km bajadas'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'28 km 1600D+'}}},
+ {n:14,ph:'build',km:64,d:2100,key:'Bajadas',days:{lun:{t:'streng',s:'Fuerza A'},mar:{t:'series',s:"5x10' cuesta"},mie:{t:'short',s:'16 km bajadas'},jue:{t:'streng',s:'Core tobillo'},vie:{t:'short',s:'15 km ritmo TGC'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'30 km'}}},
+ {n:15,ph:'build',km:66,d:2200,key:'Aclimatación calor',days:{lun:{t:'streng',s:'Fuerza A'},mar:{t:'series',s:"3x15' cuesta"},mie:{t:'short',s:'16 km calor'},jue:{t:'streng',s:'Fuerza B'},vie:{t:'short',s:'15 km calor'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'32 km'}}},
+ {n:16,ph:'build',km:48,d:1200,key:'Descarga',days:{lun:{t:'rest',s:'Descanso'},mar:{t:'series',s:"4x3' suave"},mie:{t:'short',s:'12 km suave'},jue:{t:'streng',s:'Movilidad'},vie:{t:'short',s:'12 km suave'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'22 km'}}},
+ {n:17,ph:'build',km:68,d:2300,key:'Resistencia espec.',days:{lun:{t:'streng',s:'Fuerza A'},mar:{t:'series',s:"3x15' cuesta"},mie:{t:'short',s:'16 km calor'},jue:{t:'streng',s:'Fuerza B'},vie:{t:'short',s:'16 km ritmo TGC'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'33 km 1700D+'}}},
+ {n:18,ph:'build',km:70,d:2400,key:'Cierre sólido',days:{lun:{t:'streng',s:'F. mantenimiento'},mar:{t:'series',s:"4x12' cuesta"},mie:{t:'short',s:'17 km ritmo TGC'},jue:{t:'streng',s:'Core tobillo'},vie:{t:'short',s:'16 km bajadas TGC'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'34 km eq. real'}}},
+ {n:19,ph:'spec',km:62,d:2200,key:'Inicio específico',days:{lun:{t:'streng',s:'Fuerza A'},mar:{t:'series',s:"4x10' subida"},mie:{t:'short',s:'16 km ritmo TGC'},jue:{t:'streng',s:'F. B corta'},vie:{t:'short',s:'15 km técnico'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'28 km perf. TGC'}}},
+ {n:20,ph:'spec',km:64,d:2300,key:'Técnica real',days:{lun:{t:'streng',s:'Fuerza A'},mar:{t:'series',s:"3x15' cuesta"},mie:{t:'short',s:'17 km bajadas'},jue:{t:'streng',s:'Movil.+core'},vie:{t:'short',s:'16 km ritmo TGC'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'29 km'}}},
+ {n:21,ph:'spec',km:66,d:2400,key:'Material/nutric.',days:{lun:{t:'streng',s:'Fuerza A'},mar:{t:'series',s:"3x15' cuesta"},mie:{t:'short',s:'17 km carrera'},jue:{t:'rest',s:'Descanso'},vie:{t:'short',s:'16 km bajadas'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'30 km eq. real'}}},
+ {n:22,ph:'spec',km:50,d:1400,key:'Descarga',days:{lun:{t:'rest',s:'Descanso'},mar:{t:'series',s:"4x3' activación"},mie:{t:'short',s:'12 km suave'},jue:{t:'streng',s:'Core'},vie:{t:'short',s:'12 km suave'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'22 km bastones'}}},
+ {n:23,ph:'spec',km:68,d:2500,key:'Subida+bajada',days:{lun:{t:'streng',s:'F. 1-2 ses.'},mar:{t:'series',s:"4x10' fuerte"},mie:{t:'short',s:'17 km técnico'},jue:{t:'streng',s:'Movilidad'},vie:{t:'short',s:'16 km bajadas'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'32 km 1900D+'}}},
+ {n:24,ph:'spec',km:70,d:2600,key:'Especificidad máx.',days:{lun:{t:'streng',s:'F. 1 sesión'},mar:{t:'series',s:"3x15' cuesta"},mie:{t:'short',s:'18 km ritmo TGC'},jue:{t:'streng',s:'Movilidad'},vie:{t:'short',s:'17 km bajadas'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'32 km eq. real'}}},
+ {n:25,ph:'spec',km:72,d:2700,key:'Semana cumbre',days:{lun:{t:'streng',s:'F. 1 sesión'},mar:{t:'series',s:"4x12' cuesta"},mie:{t:'short',s:'18 km bajadas ráp.'},jue:{t:'rest',s:'Descanso'},vie:{t:'short',s:'17 km ritmo total'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'34 km'}}},
+ {n:26,ph:'spec',km:54,d:1600,key:'Descarga',days:{lun:{t:'rest',s:'Descanso'},mar:{t:'series',s:"4x3' suave"},mie:{t:'short',s:'12 km suave'},jue:{t:'streng',s:'Movilidad'},vie:{t:'short',s:'13 km suave'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'24 km'}}},
+ {n:27,ph:'spec',km:70,d:2800,key:'Nutrición exacta',days:{lun:{t:'streng',s:'F. 1 sesión'},mar:{t:'series',s:"4x10' subida"},mie:{t:'short',s:'18 km ritmo TGC'},jue:{t:'streng',s:'Core'},vie:{t:'short',s:'17 km bajadas TGC'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'32 km simul. parc.'}}},
+ {n:28,ph:'spec',km:72,d:2900,key:'Resistencia musc.',days:{lun:{t:'streng',s:'F. 1 sesión'},mar:{t:'series',s:"3x15' cuesta"},mie:{t:'short',s:'18 km bajadas TGC'},jue:{t:'streng',s:'Movilidad'},vie:{t:'short',s:'17 km ritmo total'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'34 km eq. real'}}},
+ {n:29,ph:'spec',km:74,d:3000,key:'Simulacro ppal. 🔥',days:{lun:{t:'streng',s:'F. 1 sesión'},mar:{t:'series',s:"3x12' cuesta"},mie:{t:'short',s:'18 km ritmo total'},jue:{t:'rest',s:'Descanso'},vie:{t:'short',s:'17 km técnico'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'40-42 km SIMUL. 1'}}},
+ {n:30,ph:'spec',km:54,d:1700,key:'Descarga post-sim.',days:{lun:{t:'rest',s:'Descanso'},mar:{t:'series',s:"4x3' activación"},mie:{t:'short',s:'13 km suave'},jue:{t:'streng',s:'Movilidad'},vie:{t:'short',s:'13 km suave'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'24 km'}}},
+ {n:31,ph:'peak',km:68,d:2800,key:'Carga alta',days:{lun:{t:'streng',s:'F. 1 sesión'},mar:{t:'series',s:"4x10' cuesta"},mie:{t:'short',s:'17 km ritmo TGC'},jue:{t:'streng',s:'Core'},vie:{t:'short',s:'16 km técnico'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'30 km perf. TGC'}}},
+ {n:32,ph:'peak',km:72,d:3100,key:'Último gran simul. 🔥',days:{lun:{t:'streng',s:'F. 1 sesión'},mar:{t:'series',s:"3x15' cuesta"},mie:{t:'short',s:'18 km bajadas'},jue:{t:'streng',s:'Movilidad'},vie:{t:'short',s:'17 km ritmo TGC'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'40-42 km SIMUL. 2'}}},
+ {n:33,ph:'peak',km:64,d:2500,key:'Asimilar',days:{lun:{t:'rest',s:'Desc. activo'},mar:{t:'series',s:"6x4' cuesta"},mie:{t:'short',s:'16 km ritmo TGC'},jue:{t:'streng',s:'Core suave'},vie:{t:'short',s:'15 km técnico'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'28 km'}}},
+ {n:34,ph:'peak',km:52,d:1600,key:'Descarga relativa',days:{lun:{t:'rest',s:'Descanso'},mar:{t:'series',s:"6x3' cuesta"},mie:{t:'short',s:'13 km ritmo final'},jue:{t:'streng',s:'Movilidad'},vie:{t:'short',s:'13 km suave'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'22 km'}}},
+ {n:35,ph:'peak',km:74,d:3200,key:'Simulación reina',days:{lun:{t:'streng',s:'F. 1 sesión'},mar:{t:'series',s:"4x12' cuesta"},mie:{t:'short',s:'18 km téc.+ritmo'},jue:{t:'rest',s:'Descanso'},vie:{t:'short',s:'17 km bajadas'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'36 km fuerte'}}},
+ {n:36,ph:'peak',km:80,d:3500,key:'Techo del plan 🏔',days:{lun:{t:'streng',s:'F. 1 sesión'},mar:{t:'series',s:"3x15' cuesta"},mie:{t:'short',s:'18 km técnico'},jue:{t:'streng',s:'Movilidad'},vie:{t:'short',s:'18 km ritmo TGC'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'38-40 km PICO'}}},
+ {n:37,ph:'peak',km:62,d:2200,key:'Afinar',days:{lun:{t:'rest',s:'Desc. activo'},mar:{t:'series',s:"5x4' cuesta"},mie:{t:'short',s:'15 km controlados'},jue:{t:'streng',s:'Core'},vie:{t:'short',s:'14 km suave'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'26 km'}}},
+ {n:38,ph:'peak',km:50,d:1500,key:'Soltar piernas',days:{lun:{t:'rest',s:'Movilidad'},mar:{t:'series',s:"5x3' cuesta"},mie:{t:'short',s:'12 km suave'},jue:{t:'streng',s:'Core suave'},vie:{t:'short',s:'12 km suave'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'20 km bastones'}}},
+ {n:39,ph:'taper',km:46,d:1200,key:'Mantener chispa',days:{lun:{t:'streng',s:'Movil.+core'},mar:{t:'series',s:"5x2' cuesta"},mie:{t:'short',s:'11 km + 4 prog.'},jue:{t:'rest',s:'Descanso'},vie:{t:'short',s:'11 km suave'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'18 km'}}},
+ {n:40,ph:'taper',km:36,d:800,key:'Seguir fresco',days:{lun:{t:'rest',s:'Movilidad'},mar:{t:'series',s:"4x2' activación"},mie:{t:'short',s:'9 km suaves'},jue:{t:'rest',s:'Descanso'},vie:{t:'short',s:'9 km suave'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'14 km cómodos'}}},
+ {n:41,ph:'taper',km:24,d:400,key:'Puesta a punto',days:{lun:{t:'rest',s:'Descanso'},mar:{t:'series',s:"3x2' activación"},mie:{t:'short',s:'8 km suaves'},jue:{t:'rest',s:'Descanso'},vie:{t:'short',s:'8 km suave'},sab:{t:'rest',s:'Descanso'},dom:{t:'long',s:'8 km + 4 rectas'}}},
+ {n:42,ph:'taper',km:18,d:0,key:'🏁 SEMANA OBJETIVO',days:{lun:{t:'rest',s:'Descanso total'},mar:{t:'series',s:'7 km + 5x20"'},mie:{t:'rest',s:'Descanso'},jue:{t:'short',s:'5 km suaves'},vie:{t:'race',s:'CARRERA · 26 FEB'},sab:{t:'rest',s:'Recuperación'},dom:{t:'rest',s:'Paseo'}}}
+];
+
+const PHASE_INFO = {
+  base:  {name:'Fase 1 · Base',  color:'var(--base)',  weeks:'1–8',  km:'42–60',  note:'Rutina, fuerza general y aeróbico base. 6 días desde el inicio.'},
+  build: {name:'Fase 2 · Construcción', color:'var(--build)', weeks:'9–18', km:'56–70', note:'Desnivel, umbral, bajadas y aclimatación al calor de verano.'},
+  spec:  {name:'Fase 3 · Específico', color:'var(--spec)',  weeks:'19–30',km:'50–74', note:'Ritmo TGC, simulacros con material real y nutrición exacta.'},
+  peak:  {name:'Fase 4 · Pico',   color:'var(--peak)',  weeks:'31–38',km:'52–80', note:'Máxima especificidad. Pico sem 36: 80 km. Dos simulacros completos.'},
+  taper: {name:'Fase 5 · Taper',  color:'var(--taper)', weeks:'39–42',km:'18–46', note:'Reducir fatiga. Llegar fresco y afilado al 26 de febrero.'},
+};
+
+const DAYS_ES = {lun:'Lun',mar:'Mar',mie:'Mié',jue:'Jue',vie:'Vie',sab:'Sáb',dom:'Dom'};
+
+const START = new Date(2026,4,11); // May 11 2026
+function weekDates(n){
+  const a = new Date(START.getTime()+(n-1)*7*86400000);
+  const b = new Date(a.getTime()+6*86400000);
+  const ms=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return `${a.getDate()} ${ms[a.getMonth()]}–${b.getDate()} ${ms[b.getMonth()]}`;
+}
+
+// Current week calculation
+const today = new Date();
+const diffMs = today - START;
+const currentWeek = Math.max(1, Math.min(42, Math.floor(diffMs/(7*86400000))+1));
+
+// ── PROGRESS ────────────────────────────────────────────────────────────────
+const pct = Math.round(((currentWeek-1)/42)*100);
+document.getElementById('progress-fill').style.width = pct+'%';
+document.getElementById('progress-text').textContent = `Semana ${currentWeek} de 42`;
+document.getElementById('progress-pct').textContent = pct+'%';
+
+// ── PHASE CARDS ─────────────────────────────────────────────────────────────
+const phContainer = document.getElementById('phase-cards');
+Object.entries(PHASE_INFO).forEach(([key,ph])=>{
+  const div = document.createElement('div');
+  div.className = 'phase-card';
+  div.innerHTML = `
+    <div class="phase-header" style="background:${ph.color}" onclick="togglePhaseBody(this)">
+      <div class="ph-left">
+        <span class="ph-name">${ph.name}</span>
+        <span class="ph-sub">Semanas ${ph.weeks} · ${ph.km} km/sem</span>
+      </div>
+      <span class="ph-badge">${ph.km} km</span>
+    </div>
+    <div class="phase-body">
+      <div class="phase-note">${ph.note}</div>
+    </div>`;
+  phContainer.appendChild(div);
+});
+
+function togglePhaseBody(el){
+  const body = el.nextElementSibling;
+  body.classList.toggle('open');
+}
+
+// ── WEEK LIST ────────────────────────────────────────────────────────────────
+const stored = JSON.parse(localStorage.getItem('tgc_checks')||'{}');
+function saveChecks(){ localStorage.setItem('tgc_checks', JSON.stringify(stored)); }
+
+function buildWeekList(filter='all'){
+  const container = document.getElementById('week-list');
+  container.innerHTML='';
+  WEEKS.filter(w=> filter==='all' || w.ph===filter).forEach(w=>{
+    const phInfo = PHASE_INFO[w.ph];
+    const card = document.createElement('div');
+    card.className='week-card'; card.id=`wcard-${w.n}`;
+    const tagCls = `tag-${w.ph}`;
+    card.innerHTML=`
+      <div class="week-header" onclick="toggleWeek(${w.n})">
+        <div class="week-num" style="border-left:3px solid ${phInfo.color}">
+          <span class="wn">${w.n}</span>
+          <span class="wl">sem</span>
+        </div>
+        <div class="week-info">
+          <div class="week-dates">${weekDates(w.n)} &nbsp;<span class="tag ${tagCls}">${phInfo.name.split('·')[0].trim()}</span></div>
+          <div class="week-title">${w.key}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="week-km">${w.km} km</div>
+          <div class="week-dplus">+${w.d.toLocaleString('es')} D+</div>
+        </div>
+      </div>
+      <div class="week-body" id="wbody-${w.n}">
+        ${Object.entries(w.days).map(([d,s])=>{
+          const checkId=`chk-${w.n}-${d}`;
+          const done = stored[checkId];
+          return `<div class="session-row">
+            <span class="session-day">${DAYS_ES[d]}</span>
+            <div class="session-dot dot-${s.t}"></div>
+            <span class="session-text">${s.s}</span>
+            <div class="session-check${done?' done':''}" id="${checkId}" onclick="toggleCheck('${checkId}')"></div>
+          </div>`;
+        }).join('')}
+      </div>`;
+    container.appendChild(card);
+    // Auto-open current week
+    if(w.n===currentWeek){
+      setTimeout(()=>{ const b=document.getElementById(`wbody-${w.n}`); if(b) b.classList.add('open'); },100);
+    }
+  });
+}
+
+function toggleWeek(n){
+  document.getElementById(`wbody-${n}`).classList.toggle('open');
+}
+
+function toggleCheck(id){
+  stored[id] = !stored[id];
+  saveChecks();
+  const el = document.getElementById(id);
+  if(el) el.classList.toggle('done', stored[id]);
+}
+
+function filterPhase(ph, btn){
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  buildWeekList(ph);
+}
+
+buildWeekList();
+
+// ── CHARTS ──────────────────────────────────────────────────────────────────
+function drawChart(){
+  const km = WEEKS.map(w=>w.km);
+  const d  = WEEKS.map(w=>w.d);
+  const labels = WEEKS.map(w=>w.n);
+  const phColors = WEEKS.map(w=>({base:'#2e5e80',build:'#8a3e10',spec:'#7a5208',peak:'#1f4e1d',taper:'#2f6a2c'}[w.ph]));
+
+  // KM chart
+  const c1 = document.getElementById('kmChart');
+  const ctx1 = c1.getContext('2d');
+  c1.width = c1.offsetWidth * window.devicePixelRatio;
+  c1.height = 200 * window.devicePixelRatio;
+  ctx1.scale(window.devicePixelRatio, window.devicePixelRatio);
+  const W=c1.offsetWidth, H=200, pad={t:16,r:8,b:28,l:34};
+  const maxKm=Math.max(...km)+5;
+  ctx1.clearRect(0,0,W,H);
+  // grid
+  ctx1.strokeStyle='#2a2420'; ctx1.lineWidth=1;
+  [20,40,60,80].forEach(v=>{
+    const y=H-pad.b-(v/maxKm)*(H-pad.t-pad.b);
+    ctx1.beginPath(); ctx1.moveTo(pad.l,y); ctx1.lineTo(W-pad.r,y); ctx1.stroke();
+    ctx1.fillStyle='#7a6e65'; ctx1.font='9px -apple-system'; ctx1.fillText(v,2,y+3);
+  });
+  // bars
+  const bw=(W-pad.l-pad.r)/42*0.7;
+  WEEKS.forEach((w,i)=>{
+    const x=pad.l+(i/42)*(W-pad.l-pad.r)+(W-pad.l-pad.r)/42*0.15;
+    const barH=(w.km/maxKm)*(H-pad.t-pad.b);
+    ctx1.fillStyle=phColors[i];
+    ctx1.fillRect(x,H-pad.b-barH,bw,barH);
+  });
+  // current week marker
+  const cIdx=currentWeek-1;
+  const cx=pad.l+(cIdx/42)*(W-pad.l-pad.r)+(W-pad.l-pad.r)/42*0.5;
+  ctx1.strokeStyle='#e8711e'; ctx1.lineWidth=2; ctx1.setLineDash([3,3]);
+  ctx1.beginPath(); ctx1.moveTo(cx,pad.t); ctx1.lineTo(cx,H-pad.b); ctx1.stroke();
+  ctx1.setLineDash([]);
+  // x labels
+  ctx1.fillStyle='#7a6e65'; ctx1.font='9px -apple-system';
+  [1,10,20,30,40,42].forEach(n=>{
+    const x=pad.l+((n-1)/42)*(W-pad.l-pad.r);
+    ctx1.fillText(n,x,H-4);
+  });
+
+  // D+ chart
+  const c2 = document.getElementById('dChart');
+  const ctx2 = c2.getContext('2d');
+  c2.width = c2.offsetWidth * window.devicePixelRatio;
+  c2.height = 180 * window.devicePixelRatio;
+  ctx2.scale(window.devicePixelRatio, window.devicePixelRatio);
+  const W2=c2.offsetWidth, H2=180, p2={t:16,r:8,b:28,l:38};
+  const maxD=Math.max(...d)+200;
+  ctx2.clearRect(0,0,W2,H2);
+  // gradient line
+  const grd=ctx2.createLinearGradient(0,p2.t,0,H2-p2.b);
+  grd.addColorStop(0,'rgba(205,152,33,0.8)');
+  grd.addColorStop(1,'rgba(205,152,33,0.05)');
+  const pts=WEEKS.map((w,i)=>({
+    x:p2.l+(i/41)*(W2-p2.l-p2.r),
+    y:H2-p2.b-(w.d/maxD)*(H2-p2.t-p2.b)
+  }));
+  ctx2.beginPath(); ctx2.moveTo(pts[0].x,H2-p2.b);
+  pts.forEach(p=>ctx2.lineTo(p.x,p.y));
+  ctx2.lineTo(pts[pts.length-1].x,H2-p2.b); ctx2.closePath();
+  ctx2.fillStyle=grd; ctx2.fill();
+  ctx2.beginPath(); pts.forEach((p,i)=>i===0?ctx2.moveTo(p.x,p.y):ctx2.lineTo(p.x,p.y));
+  ctx2.strokeStyle='#c98a14'; ctx2.lineWidth=2; ctx2.stroke();
+  // grid
+  ctx2.strokeStyle='#2a2420'; ctx2.lineWidth=1;
+  [1000,2000,3000].forEach(v=>{
+    const y=H2-p2.b-(v/maxD)*(H2-p2.t-p2.b);
+    ctx2.beginPath(); ctx2.moveTo(p2.l,y); ctx2.lineTo(W2-p2.r,y); ctx2.stroke();
+    ctx2.fillStyle='#7a6e65'; ctx2.font='9px -apple-system'; ctx2.fillText(v===1000?'1k':v===2000?'2k':'3k',2,y+3);
+  });
+  ctx2.fillStyle='#7a6e65'; ctx2.font='9px -apple-system';
+  [1,10,20,30,40,42].forEach(n=>{
+    const x=p2.l+((n-1)/41)*(W2-p2.l-p2.r);
+    ctx2.fillText(n,x,H2-4);
+  });
+}
+
+// ── NAV ──────────────────────────────────────────────────────────────────────
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  event.target.classList.add('active');
+  if(name==='chart') setTimeout(drawChart,50);
+}
+</script>
+</body>
+</html>
